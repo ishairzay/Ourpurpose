@@ -18,9 +18,17 @@ Hosted as a static site on Cloudflare Workers.
 
 Edit the files in `public/` and commit to the `main` branch. Cloudflare redeploys automatically within a minute or two.
 
-## Turning on email signups
+## Email signups
 
-The two signup forms don't collect emails yet. Create a signup form in your email service (Kit, Mailchimp, MailerLite or Formspree), copy its form action URL, and paste it into `SIGNUP_FORM_URL` near the bottom of `public/index.html`. The form field is named `email`; if your service expects a different name (Mailchimp uses `EMAIL`), change the `name` on both inputs.
+Both signup forms send emails to `/api/subscribe` (code in `src/index.js`), which saves them in the Cloudflare D1 database **ourpurpose-signups**, table `subscribers` (email, source, signed_up_at). Duplicate emails are ignored, and a hidden field filters out most spam bots.
+
+To see your list: Cloudflare dashboard → **Storage & databases** → **D1 SQL database** → **ourpurpose-signups** → **Console**, then run:
+
+```sql
+SELECT email, source, signed_up_at FROM subscribers ORDER BY signed_up_at DESC;
+```
+
+When you choose an email service (Kit, MailerLite, Mailchimp), export this list and import it there.
 
 ## Still to fill in
 

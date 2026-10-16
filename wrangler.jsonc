@@ -1,10 +1,21 @@
 {
-  // Cloudflare Workers config for ourpurpose.life (static site, no server code)
+  // Cloudflare Workers config for ourpurpose.life
   "$schema": "https://unpkg.com/wrangler/config-schema.json",
   "name": "ourpurpose",
+  "main": "./src/index.js",
   "compatibility_date": "2026-10-16",
   "assets": {
     "directory": "./public",
-    "not_found_handling": "404-page"
-  }
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*"]
+  },
+  // Launch-list signups are saved here
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ourpurpose-signups",
+      "database_id": "0276bc7e-4da4-49a6-81dc-aba862f08ae6"
+    }
+  ]
 }

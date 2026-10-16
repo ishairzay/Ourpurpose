@@ -41,7 +41,7 @@ a{color:#F2B24C}a:hover{color:#FFD08A}
 <h1 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: clamp(3rem, 7vw, 5.5rem); line-height: 1.02; color: #FFFFFF">Our Purpose</h1>
 <p style="margin: 0; font-family: 'Marcellus', serif; font-size: clamp(1.4rem, 2.6vw, 2rem); line-height: 1.3; color: #E4DDEF">The Seven Stages of Life:<br>A Journey from Survival to Service</p>
 <p style="margin: 0; max-width: 560px; color: #CFC8DA">We begin life receiving. We grow by learning. We thrive by achieving. We awaken through love. And we discover our purpose when we begin consciously serving and giving.</p>
-<form id="join" class="signup" method="post" action="" style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; max-width: 560px">
+<form id="join" class="signup" style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; max-width: 560px">
 <label for="hero-email" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Email address</label>
 <input id="hero-email" name="email" type="email" required autocomplete="email" placeholder="Your email address" style="flex: 1 1 260px; min-height: 52px; padding: 0 20px; border-radius: 999px; border: 1px solid #4A4570; background: #1F1C3A; color: #FFFFFF; font: inherit; font-size: 16px">
 <button type="submit" style="min-height: 52px; padding: 0 28px; border-radius: 999px; border: 0; background: #F2B24C; color: #15132A; font: inherit; font-size: 16px; font-weight: 700; cursor: pointer">Notify me at launch</button>
@@ -291,7 +291,8 @@ a{color:#F2B24C}a:hover{color:#FFD08A}
 <section style="max-width: 900px; margin: 0 auto; padding: 112px 24px; display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center">
 <h2 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: clamp(2rem, 4.5vw, 3.25rem); line-height: 1.15; color: #FFFFFF">Be the first to read Our Purpose</h2>
 <p style="margin: 0; max-width: 600px; color: #CFC8DA">Join the launch list for the free first chapter, the 30-Day SEVA Challenge, and launch-day news.</p>
-<form class="signup" method="post" action="" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; width: 100%; max-width: 560px">
+<form class="signup" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; width: 100%; max-width: 560px">
+<input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
 <label for="footer-email" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Email address</label>
 <input id="footer-email" name="email" type="email" required autocomplete="email" placeholder="Your email address" style="flex: 1 1 260px; min-height: 52px; padding: 0 20px; border-radius: 999px; border: 1px solid #4A4570; background: #1F1C3A; color: #FFFFFF; font: inherit; font-size: 16px">
 <button type="submit" style="min-height: 52px; padding: 0 28px; border-radius: 999px; border: 0; background: #F2B24C; color: #15132A; font: inherit; font-size: 16px; font-weight: 700; cursor: pointer">Join the list</button>
@@ -307,22 +308,43 @@ a{color:#F2B24C}a:hover{color:#FFD08A}
 
 </div>
 <script>
-// Email signup. To start collecting emails, paste your email service's form URL
-// (Kit/ConvertKit, Mailchimp, MailerLite, Formspree...) between the quotes below.
-var SIGNUP_FORM_URL = "";
-document.querySelectorAll("form.signup").forEach(function (form) {
-  if (SIGNUP_FORM_URL) { form.action = SIGNUP_FORM_URL; return; }
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    var msg = form.parentNode.querySelector(".signup-msg");
+// Launch-list signup: sends the email to /api/subscribe, which saves it in Cloudflare.
+document.querySelectorAll("form.signup").forEach(function (form, i) {
+  var button = form.querySelector("button");
+  var label = button.textContent;
+  function show(text, isError) {
+    var msg = form.parentNode.querySelector(".signup-msg-" + i);
     if (!msg) {
       msg = document.createElement("p");
-      msg.className = "signup-msg";
+      msg.className = "signup-msg-" + i;
       msg.setAttribute("role", "status");
-      msg.style.cssText = "margin:0;font-size:15px;color:#F2B24C";
       form.after(msg);
     }
-    msg.textContent = "Thank you for your interest! The launch list opens soon.";
+    msg.style.cssText = "margin:0;font-size:15px;color:" + (isError ? "#FF9A8A" : "#F2B24C");
+    msg.textContent = text;
+  }
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var email = form.querySelector('input[name="email"]').value;
+    var trap = form.querySelector('input[name="website"]');
+    button.disabled = true;
+    button.textContent = "Joining…";
+    fetch("/api/subscribe", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email: email, website: trap ? trap.value : "", source: i === 0 ? "hero" : "footer" })
+    })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok && d.ok, d: d }; }); })
+      .then(function (res) {
+        if (res.ok) {
+          form.reset();
+          show("Thank you! You're on the launch list. We'll be in touch soon.");
+        } else {
+          show(res.d.error || "Something went wrong. Please try again.", true);
+        }
+      })
+      .catch(function () { show("Something went wrong. Please check your connection and try again.", true); })
+      .finally(function () { button.disabled = false; button.textContent = label; });
   });
 });
 </script>
