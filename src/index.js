@@ -26,14 +26,15 @@ async function subscribe(request, env) {
     return json({ ok: false, error: "Invalid request" }, 400);
   }
 
-  // Hidden "website" field: real people leave it empty, spam bots fill it in.
-  if (data.website) return json({ ok: true });
 
   const email = String(data.email || "").trim().toLowerCase();
   if (email.length > 254 || !EMAIL_RE.test(email)) {
     return json({ ok: false, error: "Please enter a valid email address." }, 400);
   }
-  const source = String(data.source || "website").slice(0, 40);
+  // Hidden trap field: real people leave it empty, most spam bots fill it in.
+  // Flagged signups are still saved (never lost), just marked so you can review them.
+  let source = String(data.source || "website").slice(0, 40);
+  if (data.hp) source += " (check: possible spam)";
 
   await env.DB.prepare("INSERT OR IGNORE INTO subscribers (email, source) VALUES (?, ?)")
     .bind(email, source)

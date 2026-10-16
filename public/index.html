@@ -292,7 +292,7 @@ a{color:#F2B24C}a:hover{color:#FFD08A}
 <h2 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: clamp(2rem, 4.5vw, 3.25rem); line-height: 1.15; color: #FFFFFF">Be the first to read Our Purpose</h2>
 <p style="margin: 0; max-width: 600px; color: #CFC8DA">Join the launch list for the free first chapter, the 30-Day SEVA Challenge, and launch-day news.</p>
 <form class="signup" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; width: 100%; max-width: 560px">
-<input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+<input type="text" name="op_hp_x7" tabindex="-1" autocomplete="new-password" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
 <label for="footer-email" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Email address</label>
 <input id="footer-email" name="email" type="email" required autocomplete="email" placeholder="Your email address" style="flex: 1 1 260px; min-height: 52px; padding: 0 20px; border-radius: 999px; border: 1px solid #4A4570; background: #1F1C3A; color: #FFFFFF; font: inherit; font-size: 16px">
 <button type="submit" style="min-height: 52px; padding: 0 28px; border-radius: 999px; border: 0; background: #F2B24C; color: #15132A; font: inherit; font-size: 16px; font-weight: 700; cursor: pointer">Join the list</button>
@@ -326,13 +326,13 @@ document.querySelectorAll("form.signup").forEach(function (form, i) {
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     var email = form.querySelector('input[name="email"]').value;
-    var trap = form.querySelector('input[name="website"]');
+    var trap = form.querySelector('input[name="op_hp_x7"]');
     button.disabled = true;
     button.textContent = "Joining…";
     fetch("/api/subscribe", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email: email, website: trap ? trap.value : "", source: i === 0 ? "hero" : "footer" })
+      body: JSON.stringify({ email: email, hp: trap ? trap.value : "", source: i === 0 ? "hero" : "footer" })
     })
       .then(function (r) { return r.json().then(function (d) { return { ok: r.ok && d.ok, d: d }; }); })
       .then(function (res) {
