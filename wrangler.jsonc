@@ -1,0 +1,10 @@
+{
+  // Cloudflare Workers config for ourpurpose.life (static site, no server code)
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "ourpurpose",
+  "compatibility_date": "2026-10-16",
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "404-page"
+  }
+}
